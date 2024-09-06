@@ -64,22 +64,17 @@ class MyContentProvider : ContentProvider() {
         }
     }
 
-    override fun getType(uri: Uri): String? {
+    override fun getType(uri: Uri): String {
         return when (uriMatcher!!.match(uri)) {
             uriCode -> "vnd.android.cursor.dir/users"
             else -> throw IllegalArgumentException("Unsupported URI: $uri")
         }
     }
 
-    // creating the database
     override fun onCreate(): Boolean {
-        val context = context
-        val dbHelper =
-            DatabaseHelper(context)
+        dbHelper = DatabaseHelper(context)
         db = dbHelper.writableDatabase
-        return if (db != null) {
-            true
-        } else false
+        return true // No need for the if-else check here
     }
 
     override fun query(
@@ -146,15 +141,11 @@ class MyContentProvider : ContentProvider() {
     // creating object of database
     // to perform query
     private var db: SQLiteDatabase? = null
+    private lateinit var dbHelper: DatabaseHelper
 
-    // creating a database
-    private class DatabaseHelper  // defining a constructor
-    internal constructor(context: Context?) : SQLiteOpenHelper(
-        context,
-        DATABASE_NAME,
-        null,
-        DATABASE_VERSION
-    ) {
+    private class DatabaseHelper internal constructor(context: Context?) :
+        SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+
         // creating a table in the database
         override fun onCreate(db: SQLiteDatabase) {
             db.execSQL(CREATE_DB_TABLE)
